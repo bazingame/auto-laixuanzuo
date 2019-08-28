@@ -1,0 +1,48 @@
+Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/33.0.0.0 Mobile Safari/537.36 MicroMessenger/6.0.0.54_r849063.501 NetType/WIFI
+
+
+GET /index.php/reserve/get/libid=10837&rwHHHapkJ=16,15&yzm= HTTP/1.1
+Host: wechat.laixuanzuo.com
+Connection: keep-alive
+Accept: application/json, text/javascript, */*; q=0.01
+X-Requested-With: XMLHttpRequest
+User-Agent: Mozilla/5.0 (Linux; Android 9; MI 6 Build/PKQ1.190118.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.126 MQQBrowser/6.2 TBS/044704 Mobile Safari/537.36 MMWEBID/661 MicroMessenger/7.0.4.1420(0x2700043C) Process/tools NetType/4G Language/zh_CN
+Referer: https://wechat.laixuanzuo.com/index.php/reserve/layout/libid=10837.html&1560335540
+Accept-Encoding: gzip, deflate, br
+Accept-Language: zh-CN,en-US;q=0.9
+Cookie: FROM_TYPE=weixin; Hm_lvt_7838cef374eb966ae9ff502c68d6f098=1559715009; Hm_lpvt_7838cef374eb966ae9ff502c68d6f098=1560592101; wechatSESS_ID=ac9ee6a012e3ff5944b241cae381a25e
+
+https://wechat.laixuanzuo.com/index.php/reserve/index.html?f=wechat
+
+m7J6fJ7KtXRZ
+
+
+GET /ws?wechatSESS_ID=0153ad498742f85b1efd1d90f76b1d0c&ns=index HTTP/1.1
+Host: wechat.laixuanzuo.com
+Connection: Upgrade
+Pragma: no-cache
+Cache-Control: no-cache
+Upgrade: websocket
+Origin: https://wechat.laixuanzuo.com
+Sec-WebSocket-Version: 13
+User-Agent: Mozilla/5.0 (Linux; Android 9; MI 6 Build/PKQ1.190118.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.126 MQQBrowser/6.2 TBS/044705 Mobile Safari/537.36 MMWEBID/661 MicroMessenger/7.0.4.1420(0x2700043C) Process/tools NetType/4G Language/zh_CN
+Accept-Encoding: gzip, deflate, br
+Accept-Language: zh-CN,en-US;q=0.9
+Cookie: FROM_TYPE=weixin; Hm_lvt_7838cef374eb966ae9ff502c68d6f098=1559715009; wechatSESS_ID=0153ad498742f85b1efd1d90f76b1d0c; Hm_lpvt_7838cef374eb966ae9ff502c68d6f098=1560425522
+Sec-WebSocket-Key: PJHVaHTNjxl36hS8SQ7CwQ==
+Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+
+GET /index.php/url/auth.html?r=%2Findex.php%2Freserve%2Findex.html%3Ff%3Dwechat%26n%3D5d02584ee600d&code=001AZPmj2lor3E0XGhmj2LbCmj2AZPmZ&state=1 HTTP/1.1
+Host: wechat.laixuanzuo.com
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Linux; Android 9; MI 6 Build/PKQ1.190118.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.126 MQQBrowser/6.2 TBS/044705 Mobile Safari/537.36 MMWEBID/661 MicroMessenger/7.0.4.1420(0x2700043C) Process/tools NetType/WIFI Language/zh_CN
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,image/wxpic,image/sharpp,image/apng,image/tpg,*/*;q=0.8
+Accept-Encoding: gzip, deflate, br
+Accept-Language: zh-CN,en-US;q=0.9
+Cookie: FROM_TYPE=weixin; Hm_lvt_7838cef374eb966ae9ff502c68d6f098=1559715009; Hm_lpvt_7838cef374eb966ae9ff502c68d6f098=1560425541; wechatSESS_ID=8ef6de18fb9561da0058eaf80f1e8af9
+
+
+
+
+
