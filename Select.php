@@ -26,7 +26,7 @@ class Select
     private $lib;
     private $seat;
 
-    const WECHAT_SESSION = '21c91845c292d6f054750eb85d50bea7';
+    const WECHAT_SESSION = '93e9556e65bf2206ed3c13ce890423d7';
 //    const WECHAT_SESSION = '6a80e1785027959a692b094d24441152';
 
     public function __construct($argv)
@@ -50,7 +50,24 @@ class Select
     private function get_code($isForce = false)
     {
         if($isForce) {
-            Log::info("force refresh code");
+            Log::info(posix_getpid() . ":force refresh code");
+
+
+            //后续进程阻塞等待
+            $file = fopen($this->code_file_name, 'w');
+            if(!flock($file , LOCK_EX)){
+                Log::info("wait for code.txt unlock");
+                $this->get_code();
+                return;
+            }
+            fclose($file);
+
+
+            //第一个进程执行更新并加锁
+            $file = fopen($this->code_file_name, 'w');
+            flock($file,LOCK_EX);
+            Log::info(posix_getpid() . "add LOCK_EX to code.txt");
+
             $this->snoopy->fetch($this->url);
             $res = $this->snoopy->getResults();
             if (preg_match('/\/layout\/(.*?)\.js\"/', $res, $match)) {
@@ -58,11 +75,11 @@ class Select
                 $codes = json_decode(file_get_contents("./final.json"), 1);
 
                 if (in_array($this->js_name, array_keys($codes))) {
-                    Log::info("写入code");
+                    Log::info(posix_getpid() . ":写入code");
                     $this->code = $codes[$this->js_name];
                     //写入文件
-                    $file = fopen($this->code_file_name, 'w');
                     fwrite($file, $this->code);
+
                 } else {
                     Log::info("no result : " . $this->js_name . " & retrying....");
                     $this->get_code();
@@ -77,6 +94,11 @@ class Select
                 Log::err("unknow error");
                 exit();
             }
+            sleep(5);
+            flock($file,LOCK_UN);
+            fclose($file);
+            Log::info(posix_getpid() . ":UNLOCK");
+
         } else {
             Log::info("not force refresh code");
             Log::info("读取code");
@@ -122,6 +144,8 @@ class Select
                 $this->get_code(true);
             } else {
                 Log::info("Process " . $childPid . "  " . $n . "  " . $res);
+                $this->get_code(true);
+
             }
         }
 

@@ -2,7 +2,7 @@
 include_once "./Select.php";
 
 
-$num = 1;   //进程数
+$num = 2;   //进程数
 while ($num--) {
     $pid = pcntl_fork();
     if ($pid == 0) {
