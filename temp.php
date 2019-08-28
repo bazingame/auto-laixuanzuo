@@ -1,11 +1,14 @@
 <?php
 
+include_once "lib/Snoopy.class.php";
 
-//写入文件
-//$file = fopen('./code.txt', 'w');
-//fwrite($file, "aaaa");
 
-$file = fopen('./code.txt','r');
-$code = fread($file,filesize('./code.txt'));
+$s = new Snoopy();
 
-print_r($code);
+$s->proxy_host = '58.218.200.223';
+$s->proxy_port = '30275';
+
+$s->fetch("http://myip.ipip.net/");
+print_r($s->getResults());
+
+echo "111";

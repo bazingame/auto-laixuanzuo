@@ -6,20 +6,29 @@ class Select
 {
     private $snoopy;
 
-    private $url = 'https://wechat.laixuanzuo.com/index.php/reserve/index.html';
-    private $select_url = 'https://wechat.laixuanzuo.com/index.php/reserve/get/yzm=&libid=';
+    private $url = 'http://wechat.laixuanzuo.com/index.php/reserve/index.html';
+    private $select_url = 'http://wechat.laixuanzuo.com/index.php/reserve/get/yzm=&libid=';
 
     private $js_name;  //js文件名
     private $code;      //js运行后算出的结果
     private $code_file_name  = './code.txt';
 
     private $seats = [
-        ['lib' => '11403', 'seat' => '12,15'],//701 74
+        ['lib' => '11403', 'seat' => '10,15'],//701 74
 //                        ['lib'=>'10648','seat'=>'11,15'],//702 04
 //                        ['lib'=>'10550','seat'=>'21,15'],//204 13
 //                        ['lib'=>'10550','seat'=>'23,15'],//204 16
 //                        ['lib'=>'10648','seat'=>'15,15'],//702 8
 //                        ['lib'=>'10837','seat'=>'20,15'],//701 6
+    ];
+
+    private $proxy = [
+        ['58.218.200.223','30152'],
+        ['58.218.200.223','30587'],
+        ['58.218.200.223','30645'],
+        ['58.218.200.223','30665'],
+        ['58.218.200.223','30707'],
+        ['58.218.200.223','30698']
     ];
 
     private $lib;
@@ -32,7 +41,6 @@ class Select
     {
         $this->snoopy = new Snoopy;
         $this->snoopy->cookies = [
-            'ROM_TYPE' => 'weixin',
             'wechatSESS_ID' => self::WECHAT_SESSION,
             'FROM_TYPE' => 'weixin',
             'Hm_lpvt_7838cef374eb966ae9ff502c68d6f098' => '1561331338',
@@ -42,8 +50,15 @@ class Select
         $this->snoopy->referer = 'https://wechat.laixuanzuo.com/index.php/reserve/index.html';
 
         $num = isset($argv[1]) ? $argv[1] : 0;
-        $this->lib = $this->seats[$num]['lib'];
-        $this->seat = $this->seats[$num]['seat'];
+
+        if($num != 0){
+            $this->snoopy->proxy_host = $this->proxy[$num][0];
+            $this->snoopy->proxy_port = $this->proxy[$num][1];
+            Log::info("using" . $this->proxy[$num][0] .':' .$this->proxy[$num][1]);
+        }
+
+        $this->lib = $this->seats[0]['lib'];
+        $this->seat = $this->seats[0]['seat'];
     }
 
     private function get_code($isForce = false)
@@ -102,7 +117,7 @@ class Select
         $n = 1000;        //单个进程请求次数
         while ($n--) {
             $res = $this->select();
-            Log::info("using code:" . $this->code);
+//            Log::info("using code:" . $this->code);
             $res_arr = json_decode($res, 1);
 
             if (isset($res_arr['code']) && $res_arr['code'] == 0) {
@@ -112,6 +127,7 @@ class Select
                 Log::info("Process " . $childPid . "\t" . "其他进程预定成功");
                 break;
             } elseif (preg_match('/503/', $res)) {
+//                print_r($res);
                 Log::err("===第 $n 次,503===");
 //                Log::err("process $childPid is dying......");
                 exit($childPid);

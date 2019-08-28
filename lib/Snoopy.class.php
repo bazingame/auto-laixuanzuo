@@ -857,10 +857,10 @@ class Snoopy
             $host = $this->proxy_host;
             $port = $this->proxy_port;
 
-            if ($this->scheme == 'https') {
-                trigger_error("HTTPS connections over proxy are currently not supported", E_USER_ERROR);
-                exit;
-            }
+//            if ($this->scheme == 'https') {
+//                trigger_error("HTTPS connections over proxy are currently not supported", E_USER_ERROR);
+//                exit;
+//            }
         } else {
             $host = $this->host;
             $port = $this->port;
@@ -892,8 +892,8 @@ class Snoopy
         $context = stream_context_create($context_opts);
 
         if (version_compare(PHP_VERSION, '5.0.0', '>')) {
-            if($this->scheme == 'http')
-                $port = 80;
+//            if($this->scheme == 'http')
+//                $port = 80;
 //                $host = "tcp://" . $host;
             $fp = stream_socket_client(
                 "$host:$port",

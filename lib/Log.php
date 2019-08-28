@@ -4,7 +4,7 @@ class Log {
 
     const SDK_LOG   = 'laixuanzuo';
 
-    const PATH      = '/var/www/temp/laixuanke/logs'; // 日志目录
+    const PATH      = 'logs'; // 日志目录
 
     public static $process = NULL;
 
