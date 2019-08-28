@@ -6,8 +6,8 @@ class Select
 {
     private $snoopy;
 
-    private $url = 'http://wechat.laixuanzuo.com/index.php/reserve/index.html';
-    private $select_url = 'http://wechat.laixuanzuo.com/index.php/reserve/get/yzm=&libid=';
+    private $url = 'https://wechat.laixuanzuo.com/index.php/reserve/index.html';
+    private $select_url = 'https://wechat.laixuanzuo.com/index.php/reserve/get/yzm=&libid=';
 
     private $js_name;  //js文件名
     private $code;      //js运行后算出的结果
@@ -22,14 +22,6 @@ class Select
 //                        ['lib'=>'10837','seat'=>'20,15'],//701 6
     ];
 
-    private $proxy = [
-        ['58.218.200.223','30152'],
-        ['58.218.200.223','30587'],
-        ['58.218.200.223','30645'],
-        ['58.218.200.223','30665'],
-        ['58.218.200.223','30707'],
-        ['58.218.200.223','30698']
-    ];
 
     private $lib;
     private $seat;
@@ -51,14 +43,8 @@ class Select
 
         $num = isset($argv[1]) ? $argv[1] : 0;
 
-        if($num != 0){
-            $this->snoopy->proxy_host = $this->proxy[$num][0];
-            $this->snoopy->proxy_port = $this->proxy[$num][1];
-            Log::info("using" . $this->proxy[$num][0] .':' .$this->proxy[$num][1]);
-        }
-
-        $this->lib = $this->seats[0]['lib'];
-        $this->seat = $this->seats[0]['seat'];
+        $this->lib = $this->seats[$num]['lib'];
+        $this->seat = $this->seats[$num]['seat'];
     }
 
     private function get_code($isForce = false)
