@@ -1,7 +1,6 @@
 <?php
 include_once "lib/Snoopy.class.php";
 include_once "lib/Log.php";
-include_once "lib/Http.php";
 
 class Select
 {
@@ -10,11 +9,9 @@ class Select
     private $url = 'https://wechat.laixuanzuo.com/index.php/reserve/index.html';
     private $select_url = 'https://wechat.laixuanzuo.com/index.php/reserve/get/yzm=&libid=';
 
-    private $js_name;
-    private $codes;
-    private $isFound; //加密找到
-
-    private $option;
+    private $js_name;  //js文件名
+    private $code;      //js运行后算出的结果
+    private $code_file_name  = './code.txt';
 
     private $seats = [
         ['lib' => '11403', 'seat' => '12,15'],//701 74
@@ -29,14 +26,10 @@ class Select
     private $seat;
 
     const WECHAT_SESSION = '21c91845c292d6f054750eb85d50bea7';
+//    const WECHAT_SESSION = '6a80e1785027959a692b094d24441152';
 
     public function __construct($argv)
     {
-        $obj        = new Http();
-        $res        = $obj->sCurl($this->options[0]);
-        $result     = Utils::jsonDecode($res);
-
-
         $this->snoopy = new Snoopy;
         $this->snoopy->cookies = [
             'ROM_TYPE' => 'weixin',
@@ -53,54 +46,63 @@ class Select
         $this->seat = $this->seats[$num]['seat'];
     }
 
-    private function get_code()
+    private function get_code($isForce = false)
     {
-        Log::info("refresh code");
-        $this->snoopy->fetch($this->url);
-        $res = $this->snoopy->getResults();
-        if (preg_match('/\/layout\/(.*?)\.js\"/', $res, $match)) {
-            $this->js_name = $match[1];
-            $this->codes = json_decode(file_get_contents("./final.json"), 1);
-        } elseif (preg_match('/取消/', $res, $match)) {
-            Log::err("预定成功:" . $this->lib . $this->seat);
+        if($isForce) {
+            Log::info("force refresh code");
+            $this->snoopy->fetch($this->url);
+            $res = $this->snoopy->getResults();
+            if (preg_match('/\/layout\/(.*?)\.js\"/', $res, $match)) {
+                $this->js_name = $match[1];
+                $codes = json_decode(file_get_contents("./final.json"), 1);
 
-            exit("已经预定成功");
-        } elseif (preg_match('/isWeixin/', $res)) {
-            Log::err("session error");
-            exit();
+                if (in_array($this->js_name, array_keys($codes))) {
+                    Log::info("写入code");
+                    $this->code = $codes[$this->js_name];
+                    //写入文件
+                    $file = fopen($this->code_file_name, 'w');
+                    fwrite($file, $this->code);
+                } else {
+                    Log::info("no result : " . $this->js_name . " & retrying....");
+                    $this->get_code();
+                }
+            } elseif (preg_match('/取消/', $res, $match)) {
+                Log::err("预定成功:" . $this->lib . $this->seat);
+                exit("已经预定成功");
+            } elseif (preg_match('/isWeixin/', $res)) {
+                Log::err("session error");
+                exit();
+            } else {
+                Log::err("unknow error");
+                exit();
+            }
         } else {
-            Log::err("unknow error");
-            exit();
+            Log::info("not force refresh code");
+            Log::info("读取code");
+            $file = fopen($this->code_file_name,'r');
+            $code = fread($file,filesize($this->code_file_name));
+            $this->code = $code;
         }
 
     }
 
-    public function start()
+    public function select()
     {
-        if (!$this->isFound) {
-            Log::info("not find to refresh ");
-            $this->get_code();
-        }
-        if (in_array($this->js_name, array_keys($this->codes))) {
-            $this->isFound = 1;
-            $code = $this->codes[$this->js_name];
-            $final_url = $this->select_url . $this->lib . "&" . $code . "=" . $this->seat;
-            $this->snoopy->fetch($final_url);
-            $select_res = $this->snoopy->getResults();
-            return $select_res;
-        } else {
-            Log::info("no result : " . $this->js_name . " & retrying....");
-            $this->isFound = 0;
-            return $this->start();
-        }
+        $final_url = $this->select_url . $this->lib . "&" . $this->code . "=" . $this->seat;
+        $this->snoopy->fetch($final_url);
+        $select_res = $this->snoopy->getResults();
+        return $select_res;
     }
 
     public function main($childPid)
     {
         $this->get_code();
+        $pid = posix_getpid();
+        $childPid = $pid;
         $n = 1000;        //单个进程请求次数
         while ($n--) {
-            $res = $this->start();
+            $res = $this->select();
+            Log::info("using code:" . $this->code);
             $res_arr = json_decode($res, 1);
 
             if (isset($res_arr['code']) && $res_arr['code'] == 0) {
@@ -111,11 +113,11 @@ class Select
                 break;
             } elseif (preg_match('/503/', $res)) {
                 Log::err("===第 $n 次,503===");
-                Log::err("process $childPid is dying......");
+//                Log::err("process $childPid is dying......");
                 exit($childPid);
             } elseif (preg_match('/该座位不存在/', $res)) {     //位置不存在有可能是因为code过期导致
-                Log::info("no seat to refresh");
-                $this->get_code();
+                Log::info("Process " . $childPid . "  " . $n . "  no seat to refresh");
+                $this->get_code(true);
             } else {
                 Log::info("Process " . $childPid . "  " . $n . "  " . $res);
             }
@@ -125,5 +127,3 @@ class Select
 
 }
 
-//wechatSESS_ID=6a80e1785027959a692b094d24441152
-//21c91845c292d6f054750eb85d50bea7
