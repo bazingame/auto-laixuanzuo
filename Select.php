@@ -14,7 +14,7 @@ class Select
     private $code_file_name  = './code.txt';
 
     private $seats = [
-        ['lib' => '11403', 'seat' => '10,15'],//701 74
+        ['lib' => '10837', 'seat' => '12,16'],//701 74
 //                        ['lib'=>'10648','seat'=>'11,15'],//702 04
 //                        ['lib'=>'10550','seat'=>'21,15'],//204 13
 //                        ['lib'=>'10550','seat'=>'23,15'],//204 16
@@ -26,7 +26,7 @@ class Select
     private $lib;
     private $seat;
 
-    const WECHAT_SESSION = '93e9556e65bf2206ed3c13ce890423d7';
+    const WECHAT_SESSION = '66fa66dc3a0983611ae956b6d2068dc9';
 //    const WECHAT_SESSION = '6a80e1785027959a692b094d24441152';
 
     public function __construct($argv)
@@ -47,18 +47,28 @@ class Select
         $this->seat = $this->seats[$num]['seat'];
     }
 
+    private function read_code(){
+        Log::info("read code");
+        $file = fopen($this->code_file_name,'r');
+        $code = fread($file,filesize($this->code_file_name));
+        $this->code = $code;
+        fclose($file);
+    }
+
     private function get_code($isForce = false)
     {
         if($isForce) {
             Log::info(posix_getpid() . ":force refresh code");
 
-
-            //后续进程阻塞等待
+            //后续进程
             $file = fopen($this->code_file_name, 'w');
-            if(!flock($file , LOCK_EX)){
-                Log::info("wait for code.txt unlock");
-                $this->get_code();
+            if(!flock($file , LOCK_SH | LOCK_NB)){
+                Log::info("check is locked");
+                fclose($file);
+                $this->read_code();
                 return;
+            }else{
+                Log::info("check no locked");
             }
             fclose($file);
 
@@ -94,17 +104,13 @@ class Select
                 Log::err("unknow error");
                 exit();
             }
-            sleep(5);
+//            sleep(5);
             flock($file,LOCK_UN);
             fclose($file);
             Log::info(posix_getpid() . ":UNLOCK");
 
         } else {
-            Log::info("not force refresh code");
-            Log::info("读取code");
-            $file = fopen($this->code_file_name,'r');
-            $code = fread($file,filesize($this->code_file_name));
-            $this->code = $code;
+            $this->read_code();
         }
 
     }
@@ -122,7 +128,7 @@ class Select
         $this->get_code();
         $pid = posix_getpid();
         $childPid = $pid;
-        $n = 1000;        //单个进程请求次数
+        $n = 10000;        //单个进程请求次数
         while ($n--) {
             $res = $this->select();
 //            Log::info("using code:" . $this->code);
@@ -144,7 +150,6 @@ class Select
                 $this->get_code(true);
             } else {
                 Log::info("Process " . $childPid . "  " . $n . "  " . $res);
-                $this->get_code(true);
 
             }
         }
